@@ -12,7 +12,7 @@ from jinja2 import Template
 from ztools import zparse, zsqueeze
 
 try:
-    sys.path.append("C:\\Programs\\Tinysoft\\Analyse.NET")
+    sys.path.append("D:\\Program Files\\Tinysoft\\Analyse.NET")
     import TSLPy3 as tsl3
 except ImportError:
     sys.path.append("D:/tinysoft/Analyse.NET")
@@ -26,7 +26,7 @@ __all__ = ['ts']
 
 # TinySoft Server Infomation
 TinySoft_Server = "tsl.tinysoft.com.cn", 443
-User_Pwd = "fzzqjyb", "123456"
+User_Pwd = "fzzqjyb", "fz123456"
 
 
 # _TsPy metaclass, indeed same as type until now

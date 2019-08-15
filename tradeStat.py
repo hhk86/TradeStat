@@ -15,10 +15,21 @@ from ztools import zparse, zcodeparse
 from collections import defaultdict, OrderedDict
 import itertools
 import datetime
+import sys
+import pprint
+
+
+pp = pprint.PrettyPrinter(indent=4)
+
 
 date = '2019-07-31'
 acct = '303'
 filename = 'order_20190731.xlsx'
+# date = '2019-02-14'
+# acct = '119'
+# filename = '119帐户所有委托记录.xlsx'
+
+
 
 
 # 1. order relationship
@@ -31,7 +42,7 @@ def nested_dict():
 
 def saveData(data, data_name):
     # 数据存储
-    store = pd.HDFStore('C:\\Users\\Administrator\\Desktop\\tradeanalyst\\tradeanalyst_data.h5')
+    store = pd.HDFStore('tradeanalyst_data2.h5')
     store[data_name] = data
     store.close()
 
@@ -118,12 +129,15 @@ class Analysis(object):
         knos['消息类别'] = 'Knock'
 
         # 天软获取证券市场价格
-        prices = self.getTYData(ords['证券代码'])
-
+        # prices = self.getTYData(ords['证券代码'])
+        store = pd.HDFStore('tradeanalyst_data2.h5')
+        prices = store['prices']
+        store.close()
         # 读取已存储的市场价格数据
         # store = pd.HDFStore('tradeanalyst_data.h5')
         # prices = store['prices']
         # store.close()
+
         # analyze
         records = nested_dict()
         for _, order in ords.iterrows():
@@ -218,6 +232,13 @@ class Analysis(object):
                     trade_result[ticker, bs, _ckey]['re_qty'] = _qty
 
             # 成本核算：时间、交易、撤补量
+            # try:
+            #     print(value["re_qty"])
+            # except:
+            #     print(pp.pprint(value))
+            #     print(_qty)
+            #     sys.exit()
+
             for key, value in trade_result.items():
                 if value['re_qty'] < 100:
                     # 撤补次数
@@ -231,12 +252,20 @@ class Analysis(object):
                                                                value['order_price_list']) / np.sum(
                         value['finished_qty_list'])
                 else:
-                    trade_result[key]['num_order'] = len(value['con_list']) - 1
                     trade_result[key]['time_fee'] = '未完成'
+                    trade_result[key]['num_order'] = len(value['con_list']) - 1
                     trade_result[key]['ave_price'] = '未成交' if np.sum(value['finished_qty_list']) == 0 else np.matmul(
                         value['finished_qty_list'], value['order_price_list']) / np.sum(value['finished_qty_list'])
+            # for key, value in trade_result.items():
+            #     pass
 
         return trade_result
 
 
 trade_result = Analysis(filename).analyze(date, acct)
+for kw, order in trade_result.items():
+    print("\n---------------------------------------------------")
+    for key, value in order.items():
+        print(key, ':', value)
+
+
